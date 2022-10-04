@@ -1,0 +1,5 @@
+# Ignore any executables in this directory (i.e. xlabs.exe).
+*.exe
+
+# Ignore the "xlabs" folder.
+xlabs/
