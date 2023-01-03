@@ -1,11 +1,11 @@
 # X Labs Launcher - File Downloader (XLL-File-Downloader)
 # Created by: JoelColby (Joel#4740)
-# Version: 1.0 (October 4, 2022)
+# Version: 1.1 (January 3, 2023)
 # License: MIT License
 # Repository: https://github.com/JoelColby/XLL-File-Downloader
 
 # Set the window title and the progress preference (stops a progress bar from appearing when invoking web requests).
-(Get-Host).UI.RawUI.WindowTitle = "XLL File Downloader (v1.0)"
+(Get-Host).UI.RawUI.WindowTitle = "XLL File Downloader (v1.1)"
 ${ProgressPreference} = 'SilentlyContinue'
 
 # Obtain the current directory path of the script.
@@ -25,7 +25,7 @@ Write-Host "#                " -NoNewLine -ForegroundColor Red
 Write-Host "Created by: JoelColby (Joel#4740)" -NoNewLine
 Write-Host "                #" -ForegroundColor Red
 Write-Host "#                           " -NoNewLine -ForegroundColor Red
-Write-Host "Version 1.0" -NoNewLine
+Write-Host "Version 1.1" -NoNewLine
 Write-Host "                           #" -ForegroundColor Red
 Write-Host "#                                                                 #" -ForegroundColor Red
 Write-Host "#                              " -NoNewLine -ForegroundColor Red
@@ -46,27 +46,27 @@ Write-Host "Current Directory: " -NoNewLine
 Write-Host "${CurrentDirectory}`n" -ForegroundColor Yellow
 
 ########################################################################################################################
-# Step 1/4: Get the file listing JSON file from the X Labs master server.
+# Step 1/4: Get the file listing JSON file from the X Labs Update server.
 ########################################################################################################################
 
 # Print visual section header.
 Write-Host "###################################################################" -ForegroundColor Cyan
-Write-Host "#        " -NoNewLine -ForegroundColor Cyan
-Write-Host "Step 1/4 - Obtain File Listing from Master Server" -NoNewline
-Write-Host "        #" -ForegroundColor Cyan
+Write-Host "#    " -NoNewLine -ForegroundColor Cyan
+Write-Host "Step 1/4 - Obtain File Listing from X Labs Update Server" -NoNewline
+Write-Host "     #" -ForegroundColor Cyan
 Write-Host "###################################################################`n" -ForegroundColor Cyan
 
-Write-Host "Getting file listing from https://master.xlabs.dev/files.json..."
+Write-Host "Getting file listing from https://updater.xlabs.dev/files.json..."
 
-# Obtain the JSON file listing from the X Labs master server.
+# Obtain the JSON file listing from the X Labs update server.
 try {
-    ${fileListing} = Invoke-WebRequest "https://master.xlabs.dev/files.json" | ConvertFrom-Json
+    ${fileListing} = Invoke-WebRequest "https://updater.xlabs.dev/files.json" | ConvertFrom-Json
 } catch {
-    # If an error is encountered when downloading the master server file listing, write the error to the console and exit.
-    Write-Error "The following error was encountered when downloading the master server file listing: ${_}`n"
+    # If an error is encountered when downloading the update server file listing, write the error to the console and exit.
+    Write-Error "The following error was encountered when downloading the update server file listing: ${_}`n"
     Write-Host "The error above has occurred. Press any key on your keyboard to exit the script..." -NoNewLine
     Read-Host
-    throw "The following error was encountered when downloading the master server file listing: ${_}"
+    throw "The following error was encountered when downloading the update server file listing: ${_}"
 }
 
 # Extract the count of the file listing and write it to the console.
@@ -90,7 +90,7 @@ Write-Host "Checking for ${numFiles} file(s) from the file listing in: ${Current
 ${counter} = 0
 [System.Collections.ArrayList]${downloadList}= @()
 
-# Iterate over each file in the file listing obtained from the master server.
+# Iterate over each file in the file listing obtained from the update server.
 foreach (${fileEntry} in ${fileListing}) {
     # Each entry contains 3 objects representing the file name, file size, and file hash. Pull out these objects.
     ${entryName} = ${fileEntry}[0]
@@ -155,21 +155,21 @@ ${downloadFileCount} = ${downloadList}.Count
 Write-Host "`nFile check complete. ${downloadFileCount} file(s) of the ${numFiles} file(s) in the file listing have been designated to be downloaded.`n"
 
 ########################################################################################################################
-# Step 3/4: Download any designated files from the master server.
+# Step 3/4: Download any designated files from the update server.
 ########################################################################################################################
 
 # Print visual section header.
 Write-Host "###################################################################" -ForegroundColor Cyan
-Write-Host "#        " -NoNewLine -ForegroundColor Cyan
-Write-Host "Step 3/4 - Download Files from the Master Server" -NoNewline
-Write-Host "         #" -ForegroundColor Cyan
+Write-Host "#     " -NoNewLine -ForegroundColor Cyan
+Write-Host "Step 3/4 - Download Files from the X Labs Update Server" -NoNewline
+Write-Host "     #" -ForegroundColor Cyan
 Write-Host "###################################################################`n" -ForegroundColor Cyan
 
 # If the file count is zero, print that we are skipping this section. Otherwise, download the files from the downloadList.
 if (${downloadFileCount} -eq 0) {
     Write-Host "There are no files to download. Skipping to the next step...`n"
 } else {
-    Write-Host "Downloading ${downloadFileCount} file(s) from the X Labs master server...`n"
+    Write-Host "Downloading ${downloadFileCount} file(s) from the X Labs update server...`n"
 
     # Initialize a counter.
     ${counter} = 0
@@ -209,10 +209,10 @@ if (${downloadFileCount} -eq 0) {
         Write-Host "${entryName} " -ForegroundColor Yellow -NoNewLine
         Write-Host "(${displaySize})..." 
 
-        # Download the file from the X Labs master server, storing the file at the full file path specified above. The
+        # Download the file from the X Labs update server, storing the file at the full file path specified above. The
         # -Force flag is used to force the creation of subdirectories if they do not exist.
         try {
-            Invoke-WebRequest -Uri "https://master.xlabs.dev/data/${entryName}" -OutFile (New-Item -Path ${file} -Force)
+            Invoke-WebRequest -Uri "https://updater.xlabs.dev/data/${entryName}" -OutFile (New-Item -Path ${file} -Force)
         } catch {
             # If an error is encountered when downloading a specific file, write the error to the console and exit.
             Write-Error "The following error was encountered when downloading the file ${entryName}: ${_}`n"
